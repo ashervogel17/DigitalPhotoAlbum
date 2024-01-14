@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include "../thumbnail/generate_thumbnail.h"
+
 
 int main(int argc, char *argv[]) {
     // Ensure user passes at least one parameter
@@ -9,10 +11,9 @@ int main(int argc, char *argv[]) {
     }
     
     // Iterate over provided photos
-    // For now: assume no wildcard expressions
     for (int i = 1; i < argc; i++) {
       char* filename = *(&argv[i]);
-      printf("%s\n", filename);
+      generate_thumbnail(filename);
     }
     
     

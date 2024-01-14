@@ -1,23 +1,15 @@
-.SUFFIXES: .c
+# Variables
+BUILD_DIR = ..
+EXECUTABLE = album
+DRIVER_VARS = BUILD_DIR=$(BUILD_DIR) EXECUTABLE=$(EXECUTABLE)
 
-SRCS = gallery.c
-OBJS = $(SRCS:.c=.o)
-OUTPUT = gallery
+# Targets
+.PHONY = all clean
 
-CC = gcc
-CFLAGS = 
-LIBS = 
-
-
-$(OUTPUT): $(OBJS)
-	$(CC) $(CFLAGS) -o $(OUTPUT) $(OBJS) $(LIBS)
+all:
+	make -C thumbnail
+	make -C driver $(DRIVER_VARS)
 
 clean:
-	rm -f $(OBJS) $(OUTPUT)
-
-depend:
-	makedepend -I/usr/local/include/g++ -- $(CFLAGS) -- $(SRCS) 
-
-# DO NOT DELETE
-
-
+	make -C thumbnail clean
+	make -C driver clean $(DRIVER_VARS)
