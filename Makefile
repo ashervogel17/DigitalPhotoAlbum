@@ -1,6 +1,6 @@
 .SUFFIXES: .c
 
-SRCS = 
+SRCS = gallery.c
 OBJS = $(SRCS:.c=.o)
 OUTPUT = gallery
 
@@ -8,12 +8,12 @@ CC = gcc
 CFLAGS = 
 LIBS = 
 
-all:
-	make -C src OUTPUT=../$(OUTPUT) 
+
+$(OUTPUT): $(OBJS)
+	$(CC) $(CFLAGS) -o $(OUTPUT) $(OBJS) $(LIBS)
 
 clean:
 	rm -f $(OBJS) $(OUTPUT)
-	make -C src clean
 
 depend:
 	makedepend -I/usr/local/include/g++ -- $(CFLAGS) -- $(SRCS) 
