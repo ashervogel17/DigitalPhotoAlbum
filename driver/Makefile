@@ -1,8 +1,8 @@
 # Dependencies
-SRCS = driver.c ../thumbnail/generate_thumbnail.c
+SRCS = driver.c ../photo_lib/photo_lib.c
 OBJS = $(SRCS:.c=.o)
-L1 = ../thumbnail
-LIBS = $(L1)/thumbnail.a
+L1 = ../photo_lib
+LIBS = $(L1)/photo_lib.a
 
 # Variables
 BUILD_DIR = .
@@ -21,7 +21,3 @@ $(BUILD_DIR)/$(EXECUTABLE): $(OBJS) $(LIBS)
 clean:
 	rm -f *.o
 	rm -f $(BUILD_DIR)/$(EXECUTABLE)
-
-album.o: ../thumbnail/generate_thumbnail.h
-../thumbnail/generate_thumbnail.o: ../thumbnail/generate_thumbnail.h
-

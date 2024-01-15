@@ -7,9 +7,9 @@ DRIVER_VARS = BUILD_DIR=$(BUILD_DIR) EXECUTABLE=$(EXECUTABLE)
 .PHONY = all clean
 
 all:
-	make -C thumbnail
+	make -C photo_lib
 	make -C driver $(DRIVER_VARS)
 
 clean:
-	make -C thumbnail clean
+	make -C photo_lib clean
 	make -C driver clean $(DRIVER_VARS)

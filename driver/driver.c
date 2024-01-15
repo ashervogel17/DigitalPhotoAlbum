@@ -1,31 +1,34 @@
 #include <stdio.h>
-#include "../thumbnail/generate_thumbnail.h"
+#include "../photo_lib/photo_lib.h"
 
 
 int main(int argc, char *argv[]) {
     // Ensure user passes at least one parameter
     if (argc == 1) {
-      printf("Incorrect Usage. Please pass raw images filenames. Space-separated filenames or wildcard notation are acceptable.\n");
+      printf("Incorrect Usage. Please pass raw images filenames. Space-separated filenames and wildcard notation are acceptable.\n");
       printf("Correct usage: %s <images>\n", argv[0]);
       return 1;
     }
     
     // Iterate over provided photos
+    // For now: assume individual files
     for (int i = 1; i < argc; i++) {
       char* filename = *(&argv[i]);
-      generate_thumbnail(filename);
+      printf("Calling display from main.\n");
+      display(filename);
+      printf("Done with call to display.\n");
     }
     
-    
-
-    
-    
-    // char userInput[100]; // Assuming a maximum input length of 100 characters
-
-    // printf("Enter something: ");
-    // fgets(userInput, sizeof(userInput), stdin);
-
-    // printf("You entered: %s", userInput);
 
     return 0;
 }
+
+/* iterate over photos
+  generate thumbnail
+  display thumbnail to user
+  ask user to rotate
+  rotate
+  ask user for caption
+  generate 25% photo
+  build HTML file
+*/
