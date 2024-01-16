@@ -1,5 +1,5 @@
 # Dependencies
-SRCS = driver.c ../photo_lib/photo_lib.c
+SRCS = driver.c ../photo_lib/photo_lib.c validate_params.c
 OBJS = $(SRCS:.c=.o)
 L1 = ../photo_lib
 LIBS = $(L1)/photo_lib.a
