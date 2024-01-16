@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
+#include "../photo_lib/photo_lib.h"
 #include "./user_input.h"
 #include "./validate_params.h"
 #include "./album_building.h"

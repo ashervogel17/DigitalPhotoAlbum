@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stddef.h>
 #include <sys/wait.h>
+#include "../photo_lib/photo_lib.h"
 #include "user_input.h"
 
 #ifndef ROTATE_RESPONSE_LEN
@@ -13,21 +14,6 @@
 #ifndef CAPTION_RESPONSE_LEN
 #define CAPTION_RESPONSE_LEN 100
 #endif
-
-int generate_thumbnail(char* input_filename, char* thumbnail_filename) {
-  execlp("convert", "convert", input_filename, "-resize", "10%", thumbnail_filename, (char*) NULL);
-  return -1;
-}
-
-int generate_medium_image(char* input_filename, char* medium_filename) {
-  execlp("convert", "convert", input_filename, "-resize", "25%", medium_filename, (char*) NULL);
-  return -1;
-}
-
-int display(char* filename) {
-  execlp("display", "display", filename, (char*) NULL);
-  return -1;
-}
 
 int get_user_input_for_rotation_and_write_to_pipe(char* input_filename, int rotate_write_fd) {
   char rotate_message[100];

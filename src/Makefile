@@ -1,13 +1,13 @@
 # Dependencies
-SRCS = driver.c validate_params.c user_input.c album_building.c
+SRCS = driver.c validate_params.c user_input.c album_building.c ../photo_lib/photo_lib.c
 OBJS = $(SRCS:.c=.o)
-L1 = 
-LIBS = 
+L1 = ../photo_lib
+LIBS = $(L1)/photo_lib.a
 
 # Variables
 BUILD_DIR = .
 EXECUTABLE = album
-CFLAGS = -Wall -pedantic -std=c11 -ggdb #-I$(L1)
+CFLAGS = -Wall -pedantic -std=c11 -ggdb -I$(L1)
 CC = gcc
 MAKE = make
 
@@ -15,7 +15,6 @@ MAKE = make
 .PHONY: clean
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS) $(LIBS)
-	echo $(OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
 validate_params.o: validate_params.h
