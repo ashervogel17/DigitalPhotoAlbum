@@ -9,7 +9,7 @@ int validate_param_count(int argc, char* program) {
   if (argc == 1) {
     printf("Incorrect Usage. Please pass image filenames as argument. Space-separated filenames and wildcard notation are acceptable.\n");
     printf("Correct usage: %s <images>\n", program);
-    return 1;
+    return -1;
   }
   return 0;
 }
@@ -21,7 +21,7 @@ int validate_file_extensions(int argc, char* argv[]) {
     // Ensure filename contains .
     if (strstr(argv[i], ".") == NULL) {
       printf("Error: Filename '%s' missing extension\n", argv[i]);
-      return 1;
+      return -1;
     }
     // Validate file extension
     bool valid = false;
@@ -40,7 +40,7 @@ int validate_file_extensions(int argc, char* argv[]) {
         printf("%s, ", valid_extensions[j]);
       }
       printf("%s\n", valid_extensions[3]);
-      return 1;
+      return -1;
     }
   }
 
@@ -60,14 +60,14 @@ int validate_file_readability(int argc, char* argv[]) {
         if (access(current_file, R_OK) != 0) {
           printf("Error: Read access not permitted to file '%s'\n", current_file);
           globfree(&wildcard_matches);
-          return 1;
+          return -1;
         }
       }
     }
     else {
       printf("Error: Couldn't find any matching files for argument %s'\n", argv[i]);
       globfree(&wildcard_matches);
-      return 1;
+      return -1;
     }
     globfree(&wildcard_matches);
   }
@@ -104,7 +104,7 @@ int validate_params(int argc, char *argv[]) {
 int validate_write_access(char* directory) {
   if (access(directory, W_OK) != 0) {
     printf("Error: Write access to directory %s not granted.", directory);
-    return 1;
+    return -1;
   }
 
   return 0;
