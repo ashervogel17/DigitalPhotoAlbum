@@ -21,3 +21,8 @@ int validate_file_extensions(int argc, char* argv[]);
 // Returns 0 if all files that pattern-match an argument are accessible to read
 // Returns 1 if any of the arguments can't be found in the file system or can't be read by the program
 int validate_file_readability(int argc, char* argv[]);
+
+// Caller provides the path to a directory (can be relative)
+// Returns 0 if the program has access to write to this directory
+// Returns 1 if not
+int validate_write_access(char* directory);

@@ -94,3 +94,12 @@ int validate_params(int argc, char *argv[]) {
 
   return 0;
 }
+
+int validate_write_access(char* directory) {
+  if (access(directory, W_OK) != 0) {
+    printf("Error: Write access to directory %s not granted.", directory);
+    return 1;
+  }
+  
+  return 0;
+}
