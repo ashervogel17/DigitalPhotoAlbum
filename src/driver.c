@@ -1,3 +1,5 @@
+#define _POSIX_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,7 +19,6 @@
 #define CAPTION_RESPONSE_LEN 100
 #endif
 
-#define _POSIX_SOURCE
 #define MAX_FILENAME_LEN 50
 
 
