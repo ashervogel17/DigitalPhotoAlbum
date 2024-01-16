@@ -1,8 +1,8 @@
 # Dependencies
 SRCS = driver.c validate_params.c user_input.c album_building.c
 OBJS = $(SRCS:.c=.o)
-L1 = ../photo_lib
-LIBS = #$(L1)/photo_lib.a
+L1 = 
+LIBS = 
 
 # Variables
 BUILD_DIR = .
@@ -13,8 +13,6 @@ MAKE = make
 
 # Targets
 .PHONY: clean
-
-all: $(EXECUTABLE)
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS) $(LIBS)
 	echo $(OBJS)
