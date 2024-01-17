@@ -1,7 +1,3 @@
-int get_user_input_for_rotation_and_write_to_pipe(char* input_filename, int rotate_write_fd);
-
-int get_user_input_for_caption_and_write_to_pipe(char* input_filename, int caption_write_fd);
-
 // code to collect input from the user
 
 // sometimes, when you want both single-char input and longer text input,
@@ -15,3 +11,11 @@ int get_user_input_for_caption_and_write_to_pipe(char* input_filename, int capti
 // adam salem, s.w. smith
 // updated sep 2020
 int input_string(char *message, char *buffer, int len);
+
+///////////////
+// Asher Vogel:
+
+int get_user_input_for_rotation_and_write_to_pipe(char* input_filename, int rotate_write_fd);
+
+int get_user_input_for_caption_and_write_to_pipe(char* input_filename, int caption_write_fd);
+

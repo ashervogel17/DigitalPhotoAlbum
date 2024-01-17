@@ -10,7 +10,6 @@
 #include "../photo_lib/photo_lib.h"
 #include "./user_input.h"
 #include "./validate_params.h"
-#include "./album_building.h"
 
 #ifndef ROTATE_RESPONSE_LEN
 #define ROTATE_RESPONSE_LEN 10
