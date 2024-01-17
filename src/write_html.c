@@ -18,7 +18,7 @@ int write_html_header(char* html_filename) {
     return 0;
   }
   else {
-    printf("Error writing HTML file at %s\n", html_filename);
+    fprintf(stderr, "Error writing HTML file at %s\n", html_filename);
     return -1;
   }
 }
@@ -33,7 +33,7 @@ int write_html_footer(char* html_filename) {
     return 0;
   }
   else {
-    printf("Error appending footer to HTML file at %s", html_filename);
+    fprintf(stderr, "Error appending footer to HTML file at %s", html_filename);
     return -1;
   }
 }
@@ -50,7 +50,7 @@ int add_html_image(char* html_filename, char* thumbnail, char* medium, char* cap
     return 0;
   }
   else {
-    printf("Error appending image container to HTML file at %s", html_filename);
+    fprintf(stderr, "Error appending image container to HTML file at %s", html_filename);
     return -1;
   }
 }

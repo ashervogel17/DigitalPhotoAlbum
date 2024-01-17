@@ -6,8 +6,8 @@
 
 int validate_param_count(int argc, char* program) {
   if (argc == 1) {
-    printf("Incorrect Usage. Please pass image filenames as argument. Space-separated filenames and wildcard notation are acceptable.\n");
-    printf("Correct usage: %s <images>\n", program);
+    fprintf(stderr, "Incorrect Usage. Please pass image filenames as argument. Space-separated filenames and wildcard notation are acceptable.\n");
+    printf(stderr, "Correct usage: %s <images>\n", program);
     return -1;
   }
   return 0;
@@ -19,7 +19,7 @@ int validate_file_extensions(int argc, char* argv[]) {
   for (int i = 1; i < argc; i++) {
     // Ensure filename contains .
     if (strstr(argv[i], ".") == NULL) {
-      printf("Error: Filename '%s' missing extension\n", argv[i]);
+      fprintf(stderr, "Error: Filename '%s' missing extension\n", argv[i]);
       return -1;
     }
     // Validate file extension
@@ -33,12 +33,12 @@ int validate_file_extensions(int argc, char* argv[]) {
     }
     // Return with error if invalid extension
     if (!valid) {
-      printf("Error: File '%s' is of invalid type.\n", extension);
-      printf("Valid file types are: ");
+      fprintf(stderr, "Error: File '%s' is of invalid type.\n", extension);
+      fprintf(stderr, "Valid file types are: ");
       for (int j = 0; j < 3; j++) {
-        printf("%s, ", valid_extensions[j]);
+        fprintf(stderr, "%s, ", valid_extensions[j]);
       }
-      printf("%s\n", valid_extensions[3]);
+      fprintf(stderr, "%s\n", valid_extensions[3]);
       return -1;
     }
   }
@@ -50,7 +50,7 @@ int validate_file_readability(int argc, char* argv[]) {
   for (int i = 1; i < argc; i++) {
     char* current_file = argv[i];
     if (access(current_file, R_OK) != 0) {
-      printf("Error: Read access not permitted to file '%s'\n", current_file);
+      fprintf(stderr, "Error: Read access not permitted to file '%s'\n", current_file);
       return -1;
     }
   }
@@ -59,7 +59,7 @@ int validate_file_readability(int argc, char* argv[]) {
 
 int validate_write_access(char* directory) {
   if (access(directory, W_OK) != 0) {
-    printf("Error: Write access to directory %s not granted.", directory);
+    fprintf(stderr, "Error: Write access to directory %s not granted.", directory);
     return -1;
   }
 
