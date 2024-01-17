@@ -85,11 +85,11 @@ int get_user_input_for_caption_and_write_to_pipe(char* input_filename, int capti
     free(caption_buffer);
     return -1;
   }
-  status = write(caption_write_fd, caption_buffer, sizeof(caption_buffer));
+  printf("Got caption: %s\n", caption_buffer);
+  status = write(caption_write_fd, caption_buffer, sizeof(char)*(strlen(caption_buffer) + 1));
   free(caption_buffer);
   if (status != 0) {
     printf("Error writing caption to pipe.\n");
-    return -1;
   }
   
   return status;

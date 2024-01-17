@@ -1,5 +1,5 @@
 # Dependencies
-SRCS = driver.c validate_params.c user_input.c ../photo_lib/photo_lib.c
+SRCS = driver.c validate_params.c user_input.c write_html.c ../photo_lib/photo_lib.c
 OBJS = $(SRCS:.c=.o)
 L1 = ../photo_lib
 LIBS = $(L1)/photo_lib.a
@@ -16,10 +16,6 @@ MAKE = make
 
 $(BUILD_DIR)/$(EXECUTABLE): $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) $^ -o $@
-
-validate_params.o: validate_params.h
-user_input.o: user_input.h
-album_building.o: album_building.h
 
 clean:
 	rm -f *.o
