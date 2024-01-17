@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include <glob.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -48,36 +47,26 @@ int validate_file_extensions(int argc, char* argv[]) {
 }
 
 int validate_file_readability(int argc, char* argv[]) {
-  // Iterate over params
-  int glob_status;
-  glob_t wildcard_matches;
   for (int i = 1; i < argc; i++) {
-    glob_status = glob(argv[i], 0, NULL, &wildcard_matches);
-    if (glob_status == 0) {
-      // Iterate over matching files
-      for (size_t j = 0; j < wildcard_matches.gl_pathc; j++) {
-        char* current_file = wildcard_matches.gl_pathv[j];
-        if (access(current_file, R_OK) != 0) {
-          printf("Error: Read access not permitted to file '%s'\n", current_file);
-          globfree(&wildcard_matches);
-          return -1;
-        }
-      }
-    }
-    else {
-      printf("Error: Couldn't find any matching files for argument %s'\n", argv[i]);
-      globfree(&wildcard_matches);
+    char* current_file = argv[i];
+    if (access(current_file, R_OK) != 0) {
+      printf("Error: Read access not permitted to file '%s'\n", current_file);
       return -1;
     }
-    globfree(&wildcard_matches);
   }
+  return 0;
+}
 
-  
+int validate_write_access(char* directory) {
+  if (access(directory, W_OK) != 0) {
+    printf("Error: Write access to directory %s not granted.", directory);
+    return -1;
+  }
 
   return 0;
 }
 
-int validate_params(int argc, char *argv[]) {
+int validate_params(int argc, char *argv[], char* working_directory) {
   int status;
   
   // Ensure user passes at least one parameter
@@ -98,14 +87,8 @@ int validate_params(int argc, char *argv[]) {
     return status;
   }
 
-  return 0;
-}
-
-int validate_write_access(char* directory) {
-  if (access(directory, W_OK) != 0) {
-    printf("Error: Write access to directory %s not granted.", directory);
-    return -1;
-  }
-
-  return 0;
+  // Ensure write access to working directory
+  status = validate_write_access(working_directory);
+  
+  return status;
 }
