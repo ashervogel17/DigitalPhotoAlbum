@@ -1,5 +1,8 @@
-// CS 58
-// sample code to collect input from the user
+int get_user_input_for_rotation_and_write_to_pipe(char* input_filename, int rotate_write_fd);
+
+int get_user_input_for_caption_and_write_to_pipe(char* input_filename, int caption_write_fd);
+
+// code to collect input from the user
 
 // sometimes, when you want both single-char input and longer text input,
 // using scanf and getc and such, one fetch may leave unconsumed characters

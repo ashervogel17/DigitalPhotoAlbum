@@ -12,3 +12,8 @@ int generate_medium_image(char* input_filename, char* medium_filename);
 // Function displays the image
 // Returns 0 on success, -1 on failure
 int display(char* filen);
+
+// Caller provides path to image and one of (cw, ccw, or no)
+// Function rotates the image in place (90deg clockwise for cw, 90deg counter-clockwise for ccw, none for no)
+// Returns 0 on success, -1 on failure
+int rotate(char* file, char* rotation);

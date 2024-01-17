@@ -122,12 +122,34 @@ int main(int argc, char *argv[]) {
     waitpid(pids[5], NULL, 0); // Wait for user input on rotation
     pids[6] = fork();
     if (pids[6] == 0) {
-      int status = perform_rotations(thumbnail_filename, medium_filename, rotate_fd[0], caption_fd[0]);
+      char rotation_dir[ROTATE_RESPONSE_LEN];
+      read(rotate_fd[0], rotation_dir, ROTATE_RESPONSE_LEN);
       close(rotate_fd[0]);
       close(rotate_fd[1]);
       close(caption_fd[0]);
       close(caption_fd[1]);
-      return status;
+
+      pid_t rotation_pids[2];
+
+      rotation_pids[0] = fork();
+      if (rotation_pids[0] == 0) {
+        return rotate(thumbnail_filename, rotation_dir);
+      }
+
+      rotation_pids[1] = fork();
+      if (rotation_pids[1] == 0) {
+        return rotate(medium_filename, rotation_dir);
+      }
+      
+      int status = 0;
+      for (int i = 0; i < 2; i++) {
+        waitpid(rotation_pids[i], &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+          printf("Error with rotations./n");
+          return -1;
+        }
+      }
+      return 0;
     }
     
     
