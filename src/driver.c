@@ -7,95 +7,123 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <signal.h>
-#include <X11/Xlib.h>
+#include <glob.h>
 #include "../photo_lib/photo_lib.h"
 #include "user_input.h"
 #include "validate_params.h"
 #include "write_html.h"
 
 #ifndef ROTATE_RESPONSE_LEN
-#define ROTATE_RESPONSE_LEN 10
+#define ROTATE_RESPONSE_LEN 30
 #endif
 
 #ifndef CAPTION_RESPONSE_LEN
-#define CAPTION_RESPONSE_LEN 100
+#define CAPTION_RESPONSE_LEN 150
 #endif
 
-#define MAX_FILENAME_LEN 50
-
-
 int main(int argc, char *argv[]) {
-    // Validate parameters
-    int params_status = validate_params(argc, argv);
-    if (params_status != 0) {
-      return params_status;
+  // Validate parameters
+  printf("Validating parameters...\n");
+  int params_status = validate_params(argc, argv, ".");
+  if (params_status != 0) {
+    return params_status;
+  }
+
+  // Test access to X server before proceeding
+  // pid_t pid = fork();
+  // if (pid == 0) {
+  //   printf("Verifying access to X server...\n");
+  //   execlp("convert", "convert", "-resize", "100%", argv[1], argv[1]);
+  // }
+  // waitpid(pid, NULL, 0);
+
+  // Set up HTML file
+  char* html_filename = "index.html";
+  write_html_header(html_filename);
+  
+  // Organize management of child processes
+    // pids[i][0]: generation of ith thumbnail
+    // pids[i][1]: generation of ith medium
+    // pids[i][2]: display ith thumbnail
+    // pids[i][3]: Get rotation and caption input from user. Perform rotation. Write to HTML.
+  pid_t pids[argc-1][4]; // pids[i][j] corresponds to the jth process of the (i+1)th image
+  
+  // Kick off generation of first thumbmail
+  int image_index = 0;
+  pids[image_index][0] = fork();
+  if (pids[image_index][0] == 0) {   
+    char dst[20];
+    char* extension = strrchr(argv[image_index + 1], '.'); // file extension 
+    sprintf(dst, "thumb%d%s", image_index, extension);
+    return generate_thumbnail(argv[image_index+1], dst);
+  }
+
+  // Kickoff generation of first medium image
+  pids[image_index][1] = fork();
+  if (pids[image_index][1] == 0) {
+    char dst[20];
+    char* extension = strrchr(argv[image_index + 1], '.'); // file extension 
+    sprintf(dst, "med%d%s", image_index, extension);
+    return generate_medium_image(argv[image_index+1], dst);
+  }
+
+  // Iterate though all images. Kick off generation of next thumbnail and medium before processing current image.
+  while (image_index < argc - 1) {
+    if (image_index > 0) {
+      waitpid(pids[image_index-1][3], NULL, 0);
+    }
+    printf("Image index: %d. Argc: %d. Number of photos: %d.\n", image_index, argc, argc-1);
+    // Generate thumbnail and medium-sized for next index.
+    if (image_index + 1 < argc - 1) {
+      pids[image_index+1][0] = fork();
+      if (pids[image_index+1][0] == 0) {
+        waitpid(pids[image_index][0], NULL, 0); // wait for previous thumbnail to finish generating
+        char dst[20];
+        char* extension = strrchr(argv[image_index + 2], '.'); // file extension 
+        sprintf(dst, "thumb%d%s", image_index+1, extension);
+        return generate_thumbnail(argv[image_index+2], dst);
+      }
+      pids[image_index+1][1] = fork();
+      if (pids[image_index+1][1] == 0) {
+        waitpid(pids[image_index][1], NULL, 0); // wait for previous medium to finish generating
+        char dst[20];
+        char* extension = strrchr(argv[image_index + 2], '.'); // file extension 
+        sprintf(dst, "med%d%s", image_index+1, extension);
+        return generate_medium_image(argv[image_index+2], dst);
+      }
     }
 
-    // Ensure write priveledge to current directory
-    int write_status = validate_write_access(".");
-    if (write_status != 0) {
-      return write_status;
+    // Fork to display current thumbnail
+    waitpid(pids[image_index][0], NULL, 0); // Wait for thumbnail to finish generating
+    if (image_index > 0) {
+      waitpid(pids[image_index-1][2], NULL, 0); // Wait for previous thumbnail display to terminate
     }
-
-    // Filenames
-    char* input_filename = malloc(sizeof(char) * MAX_FILENAME_LEN);
-    strcpy(input_filename, argv[1]);
-    char* thumbnail_filename = "thumb.jpg";
-    char* medium_filename = "med.jpg";
-    char* html_filename = "index.html";
-
-    // Create two pipes for rotate input and caption input
-    int rotate_fd[2];
-    if (pipe(rotate_fd) < 0) {
-      printf("Error: Couldn't create pipe for rotation messages.\n");
-      exit(1);
-    }
-
-    // Array to keep track of process id's
-    pid_t pids[7];
-    pids[0] = getpid(); // main pid at index 0
-
-    write_html_header(html_filename);
-
-    // Process 1: Generate Thumbnail
-    pids[1] = fork();
-    if (pids[1] == 0) {
-      // Rotation pipe not needed
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
-      return generate_thumbnail(input_filename, thumbnail_filename);
-    }
-
-    // Process 2: Generate Medium-Sized Image
-    pids[2] = fork();
-    if (pids[2] == 0) {
-      // Rotation pipe not needed
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
-      return generate_medium_image(input_filename, medium_filename);
-    }
-
-    // Process 3: Display Thumbnail
-    waitpid(pids[1], NULL, 0); // Wait for generation of thumbnail
-    pids[3] = fork();
-    if (pids[3] == 0) {
-      // Rotation pipe not needed
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
+    pids[image_index][2] = fork();
+    if (pids[image_index][2] == 0) {
+      char* extension = strrchr(argv[image_index+1], '.');
+      char thumbnail_filename[20];
+      sprintf(thumbnail_filename, "thumb%d%s", image_index, extension);
       return display(thumbnail_filename);
     }
 
-    // Process 4: Get User Input for Rotation
-    waitpid(pids[1], NULL, 0); // Wait for generation of thumbnail
-    pids[4] = fork();
-    if (pids[4] == 0) {
-      // Prompt to user
-      char rotate_message[100];
+    // Fork get user input on rotation and caption. Perform rotation. Write to HTML.
+    waitpid(pids[image_index][0], NULL, 0); // Wait for thumbnail to finish generating
+    pids[image_index][3] = fork();
+    if (pids[image_index][3] == 0) {
+      printf("Collecting rotation and caption on index %d\n", image_index);
+      int status = 0; // Keep track of status. Exit if nonzero
+      char* input_filename = argv[image_index+1];
+      char rotate_message[100]; // Prompt for rotation input
+      char* rotate_buffer = malloc(sizeof(char) * ROTATE_RESPONSE_LEN); // Stores user input on rotation
+      
+      // Gather rotation input from user. Repeat until valid reponse (cw, cww, or no)
       sprintf(rotate_message, "Rotate %s? [cw/ccw/no]", input_filename);
-
-      // Gather input from user. Repeat until valid reponse (cw, cww, or no)
-      char* rotate_buffer = malloc(sizeof(char) * ROTATE_RESPONSE_LEN);
-      int status = input_string(rotate_message, rotate_buffer, ROTATE_RESPONSE_LEN);
+      status = input_string(rotate_message, rotate_buffer, ROTATE_RESPONSE_LEN);
+      if (status != 0) {
+        fprintf(stderr, "Error reading rotation input from user.\n");
+        free(rotate_buffer);
+        return status;
+      }
       while (strcmp(rotate_buffer, "cw") != 0 && strcmp(rotate_buffer, "ccw") != 0 && strcmp(rotate_buffer, "no") != 0) {
         free(rotate_buffer);
         rotate_buffer = malloc(sizeof(char) * ROTATE_RESPONSE_LEN);
@@ -103,104 +131,61 @@ int main(int argc, char *argv[]) {
         status = input_string(rotate_message, rotate_buffer, ROTATE_RESPONSE_LEN);
       }
 
-      // Write user response to pipe
-      write(rotate_fd[1], rotate_buffer, sizeof(rotate_buffer));
-
-      // Clean up
-      free(rotate_buffer);
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
-      return status;
-    }
-
-    // Process 5: Rotate Thumbnail and Medium Sized Images
-    waitpid(pids[2], NULL, 0); // Wait for generaiton of medium-sized image
-    waitpid(pids[4], NULL, 0); // Wait for user input on rotation
-    pids[5] = fork();
-    if (pids[5] == 0) {
-      char rotation_dir[ROTATE_RESPONSE_LEN];
-      read(rotate_fd[0], rotation_dir, ROTATE_RESPONSE_LEN);
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
-
-      pid_t rotation_pids[2];
-
-      rotation_pids[0] = fork();
-      if (rotation_pids[0] == 0) {
-        return rotate(thumbnail_filename, rotation_dir);
-      }
-
-      rotation_pids[1] = fork();
-      if (rotation_pids[1] == 0) {
-        return rotate(medium_filename, rotation_dir);
-      }
-      
-      int status = 0;
-      for (int i = 0; i < 2; i++) {
-        waitpid(rotation_pids[i], &status, 0);
-        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-          printf("Error with rotations./n");
-          return -1;
-        }
-      }
-      return 0;
-    }
-
-    // Process 6: Get User Input for Caption and Write to HTML
-    waitpid(pids[5], NULL, 0); // Wait for image rotation
-    pids[6] = fork();
-    if (pids[6] == 0) {
-      // Rotation pipe not needed
-      close(rotate_fd[0]);
-      close(rotate_fd[1]);
-
-      // Prompt to user
-      char caption_message[100];
-      sprintf(caption_message, "Enter a caption for %s", input_filename);
-
-      // Spin of child process to get caption from user and write to pipe
-      int caption_fd[2];
-      int status = pipe(caption_fd);
-      if (status < 0) {
-        printf("Couldn't create caption pipe.\n");
+      // Get caption from user
+      char caption_message[100]; // Prompt for caption input
+      sprintf(caption_message, "Enter a caption for %s", argv[image_index+1]);
+      char* caption_buffer = malloc(CAPTION_RESPONSE_LEN * sizeof(char));
+      status = input_string(caption_message, caption_buffer, CAPTION_RESPONSE_LEN);
+      if (status != 0) {
+        fprintf(stderr, "Error reading caption input from user.\n");
+        free(caption_buffer);
         return status;
       }
-      pid_t caption_input_pid = fork();
-      if (caption_input_pid == 0) {
-        char* caption_buffer = calloc(CAPTION_RESPONSE_LEN, sizeof(char));
-        int status = input_string(caption_message, caption_buffer, CAPTION_RESPONSE_LEN);
-        if (status != 0) {
-          printf("Error reading caption from user.\n");
-          free(caption_buffer);
-          return status;
-        }
-        write(caption_fd[1], caption_buffer, sizeof(char)*(strlen(caption_buffer) + 1));
-        free(caption_buffer);
-        close(caption_fd[0]);
-        close(caption_fd[1]);
-        return 0;
+
+      printf("Rotation: %s\n", rotate_buffer);
+      printf("Caption: %s\n", caption_buffer);
+
+      kill(pids[image_index][2], SIGKILL);
+
+      // Perform rotations
+      char* extension = strrchr(argv[image_index+1], '.');
+      char thumbnail_filename[20];
+      sprintf(thumbnail_filename, "thumb%d%s", image_index, extension);
+      status = rotate(thumbnail_filename, rotate_buffer);
+      if (status != 0) {
+        fprintf(stderr, "Issue rotating thumbnail.\n");
+        return status;
       }
 
-      // Wait for user caption from user
-      waitpid(caption_input_pid, NULL, 0);
+      char medium_filename[20];
+      extension = strrchr(argv[image_index + 1], '.'); // file extension 
+      sprintf(medium_filename, "med%d%s", image_index, extension);
+      status = rotate(medium_filename, rotate_buffer);
+      if (status != 0) {
+        fprintf(stderr, "Issue rotating medium-sized image.\n");
+        return status;
+      }
 
-      // Read caption from pipe and write to HTML file with images
-      char* caption_buffer = calloc(CAPTION_RESPONSE_LEN, sizeof(char));
-      read(caption_fd[0], caption_buffer, CAPTION_RESPONSE_LEN);
+      // Write to HTML file
       add_html_image(html_filename, thumbnail_filename, medium_filename, caption_buffer);
 
       // Clean up
       free(caption_buffer);
-      close(caption_fd[0]);
-      close(caption_fd[1]);
-      return status;
+      free(rotate_buffer);
+      
+      return 0;
     }
     
-    // Clean up
-    waitpid(pids[6], NULL, 0);
-    free(input_filename);
-    kill(pids[3], 42);
-    write_html_footer(html_filename);
+    waitpid(pids[image_index][0], NULL, 0);
+    waitpid(pids[image_index][1], NULL, 0);
+    waitpid(pids[image_index][2], NULL, 0);
+    waitpid(pids[image_index][4], NULL, 0);
+    image_index++;
 
-    return 0;
+  }
+
+  // Finish HTML file
+  write_html_footer(html_filename);
+
+  return 0;
 }

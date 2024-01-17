@@ -7,7 +7,7 @@ LIBS = $(L1)/photo_lib.a
 # Variables
 BUILD_DIR = .
 EXECUTABLE = album
-CFLAGS = -Wall -pedantic -std=c11 -ggdb -I$(L1)
+CFLAGS = -Wall -pedantic -std=c17 -ggdb -I$(L1)
 CC = gcc
 MAKE = make
 
