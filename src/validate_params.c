@@ -7,7 +7,7 @@
 int validate_param_count(int argc, char* program) {
   if (argc == 1) {
     fprintf(stderr, "Incorrect Usage. Please pass image filenames as argument. Space-separated filenames and wildcard notation are acceptable.\n");
-    printf(stderr, "Correct usage: %s <images>\n", program);
+    fprintf(stderr, "Correct usage: %s <images>\n", program);
     return -1;
   }
   return 0;
