@@ -59,7 +59,7 @@ int validate_file_readability(int argc, char* argv[]) {
 
 int validate_write_access(char* directory) {
   if (access(directory, W_OK) != 0) {
-    fprintf(stderr, "Error: Write access to directory %s not granted.", directory);
+    fprintf(stderr, "Error: Write access to directory %s not granted.\n", directory);
     return -1;
   }
 

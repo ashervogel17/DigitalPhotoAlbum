@@ -19,7 +19,7 @@ int validate_param_count(int argc, char* program);
 int validate_file_extensions(int argc, char* argv[]);
 
 // Helper function for validate_params
-// Returns 0 if all files that pattern-match an argument are accessible to read
+// Returns 0 if all files in argv are accessible to read
 // Returns -1 if any of the arguments can't be found in the file system or can't be read by the program
 int validate_file_readability(int argc, char* argv[]);
 
