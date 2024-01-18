@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   int status;
   waitpid(pid, &status, 0);
   if (status != 0) {
-    printf(stderr, "Couldn't access X server");
+    fprintf(stderr, "Couldn't access X server");
     return status;
   }
 
