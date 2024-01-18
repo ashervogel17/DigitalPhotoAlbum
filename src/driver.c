@@ -192,6 +192,5 @@ int main(int argc, char *argv[]) {
   // Finish HTML file
   write_html_footer(html_filename);
   return 0;
-
   }
-  
+
