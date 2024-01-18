@@ -1,3 +1,5 @@
+// Note: For all of these functions, the caller is expected to fork before calling, as they all exit at end of running.
+
 // Caller provides path to the src file and dst file
 // Function generates a copy of the image that's 10% of the size
 // Returns 0 on success, -1 on failure

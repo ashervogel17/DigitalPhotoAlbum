@@ -3,14 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifndef ROTATE_RESPONSE_LEN
-#define ROTATE_RESPONSE_LEN 10
-#endif
-
-#ifndef CAPTION_RESPONSE_LEN
-#define CAPTION_RESPONSE_LEN 100
-#endif
-
 #define STRING_LEN  32
 
 // Credit:
