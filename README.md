@@ -19,3 +19,7 @@ The command line prompt supports wild card expressions, single files, and even m
 ## Solution Architecture
 
 The key to this program's success is taking advantage of concurrency. While the program is waiting for the user to input a caption or rotate a photo, it is processing one or more images in the background. This means minimal computing downtime and as seamless an experience as possible for the user. Here is a diagram of how the processes' lifelines: [Process Lifelifes](./process_lifelines.pdf).
+
+## Limitations
+
+This program was developed in the Dartmouth Thayer Linux system, which has an X server setup for photo display and processing. If you environment is not configured to support X, you will be unable to run this code.
